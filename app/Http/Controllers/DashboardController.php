@@ -18,15 +18,19 @@ class DashboardController extends Controller
         $nrp = Auth::guard('karyawan')->user()->nrp;
         $presensiHariIni = DB::table('presensi')->where('nrp',$nrp)->where('tgl_presensi',$hariIni)->first();
         $historiBulanIni = DB::table('presensi')
-            
-            ->where('nrp', $nrp)
+            ->select('presensi.*','keterangan','jam_kerja.*','doc_cis','nama_cuti')
+            ->leftjoin ('jam_kerja','presensi.kode_jam_kerja','=','jam_kerja.kode_jam_kerja')
+            ->leftJoin('cis','presensi.kode_izin','=','cis.kode_izin')
+            ->leftJoin('master_cuti','cis.kode_izin','=','master_cuti.kode_cuti')
+            ->where('presensi.nrp', $nrp)
             ->whereRaw('MONTH(tgl_presensi)="' . $bulanIni . '"')
             ->whereRaw('YEAR(tgl_presensi)="' . $tahunIni . '"')
             ->orderBy('tgl_presensi')
             ->get();
         
             $rekapPresensi = DB::table('presensi')
-            ->selectRaw('COUNT(nrp) as totHadir, SUM(IF(jam_in > "06:50",1,0)) as totLate' )
+            ->selectRaw('COUNT(nrp) as totHadir, SUM(IF(jam_in > jam_masuk ,1,0)) as totLate' )
+            ->leftjoin('jam_kerja','presensi.kode_jam_kerja','=','jam_kerja.kode_jam_kerja')
             ->where('nrp', $nrp)
             ->whereRaw('MONTH(tgl_presensi)="' . $bulanIni . '"')
             ->whereRaw('YEAR(tgl_presensi)="' . $tahunIni . '"')
@@ -34,7 +38,14 @@ class DashboardController extends Controller
 
         $namaBulan = ["","Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November","Desember"];
         
-        return view("dashboard.dashboard", compact('presensiHariIni' , 'historiBulanIni', 'namaBulan', 'bulanIni', 'tahunIni', 'rekapPresensi'));
+        $rekapCis = DB::table('cis')
+        ->selectRaw('SUM(IF(status="i",1,0)) as jmlIzin,SUM(IF(status="s",1,0)) as jmlSakit')
+        ->where('nrp',$nrp)
+        ->whereRaw('MONTH(tgl_izin_dari)="' . $bulanIni . '"')
+        ->whereRaw('YEAR(tgl_izin_dari)="' . $tahunIni . '"')
+        ->where('status_approved',1)
+        ->first();
+        return view("dashboard.dashboard", compact('presensiHariIni' , 'historiBulanIni', 'namaBulan', 'bulanIni', 'tahunIni', 'rekapPresensi','rekapCis'));
     }
 
     public function dashboardadmin(){
@@ -44,6 +55,12 @@ class DashboardController extends Controller
             ->selectRaw('COUNT(nrp) as totHadir, SUM(IF(jam_in > "06:50",1,0)) as totLate' )
             ->where('tgl_presensi',$hariIni)
             ->first();
-        return view('dashboard.dashboardadmin', compact('rekapPresensi', 'totalUsers'));
+
+        $rekapCis = DB::table('cis')
+        ->selectRaw('SUM(IF(status="i",1,0)) as jmlIzin,SUM(IF(status="s",1,0)) as jmlSakit')
+        ->where('tgl_izin_dari',$hariIni)
+        ->where('status_approved',1)
+        ->first();
+        return view('dashboard.dashboardadmin', compact('rekapPresensi', 'totalUsers','rekapCis'));
     }
 }

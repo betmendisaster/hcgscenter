@@ -36,7 +36,8 @@ class KaryawanController extends Controller
 
 
         $department = DB::table('department')->get();
-        return view('karyawan.index', compact('karyawan','department'));
+        $cabang = DB::table('cabang')->orderBy('kode_cabang')->get();
+        return view('karyawan.index', compact('karyawan','department', 'cabang'));
     }
 
     // ADD DATA KARYAWAN
@@ -47,6 +48,7 @@ class KaryawanController extends Controller
         $jabatan = $request->jabatan;
         $telp = $request->telp;
         $password = Hash::make('123');
+        $kode_cabang = $request->kode_cabang;
                 if ($request->hasFile('foto')) {
             $foto = $nrp . "." . $request->file('foto')->getClientOriginalExtension();
         } else {
@@ -61,7 +63,8 @@ class KaryawanController extends Controller
                 'jabatan' => $jabatan,
                 'telp' => $telp,
                 'foto' => $foto,
-                'password' => $password
+                'password' => $password,
+                'kode_cabang' => $kode_cabang
             ];
             $simpan = DB::table('karyawan')->insert($data);
             if($simpan){
@@ -83,17 +86,19 @@ class KaryawanController extends Controller
     {
         $nrp = $request->nrp;
         $department = DB::table('department')->get();
+        $cabang = DB::table('cabang')->orderBy('kode_cabang')->get();
         $karyawan = DB::table('karyawan')->where('nrp',$nrp)->first();
-        return view('karyawan.edit',compact('department','karyawan'));
+        return view('karyawan.edit',compact('department','karyawan', 'cabang'));
     }
 
     public function update ($nrp, Request $request){
         $nrp = $request->nrp;
         $nama = $request->nama;
         $kode_dept = $request->kode_dept;
+        $kode_cabang = $request->kode_cabang;
         $jabatan = $request->jabatan;
         $telp = $request->telp;
-        $password = Hash::make('123');
+        // $password = Hash::make('123');
         $old_foto = $request->old_foto;
                 if ($request->hasFile('foto')) {
             $foto = $nrp . "." . $request->file('foto')->getClientOriginalExtension();
@@ -108,7 +113,8 @@ class KaryawanController extends Controller
                 'jabatan' => $jabatan,
                 'telp' => $telp,
                 'foto' => $foto,
-                'password' => $password
+                // 'password' => $password,
+                'kode_cabang' => $kode_cabang
             ];
             $update = DB::table('karyawan')->where('nrp', $nrp)->update($data);
             if($update){

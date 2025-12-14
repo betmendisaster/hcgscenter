@@ -1,11 +1,16 @@
 <?php
-
+//testing git commit
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CabangController;
+use App\Http\Controllers\CutiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\IzinCisController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\SakitCisController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\IzinCutiController;
 use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
 
@@ -45,8 +50,31 @@ route::middleware(['auth:karyawan'])->group(function () {
     Route::get('/presensi/histori', [PresensiController::class, 'histori']);
     Route::post('/getHistori', [PresensiController::class, 'getHistori']);
 
-    // CIS
-    Route::get('/presensi/izin',[PresensiController::class,'izin']);
+    // MAINTENANCE
+    Route::get('/presensi/maintenance',[PresensiController::class,'maintenance']);
+    
+    // CIS (CUTI IZIN SAKIT)
+    // IZIN
+    Route::get('/presensi/cis/izin',[PresensiController::class, 'izin']);
+    Route::get('/presensi/cis/buatIzin',[PresensiController::class,'buatIzin']);
+    Route::post('/presensi/cis/storeIzin',[IzinCisController::class,'storeIzin']);
+    Route::get('/presensi/izinCis/{kode_izin}/edit',[IzinCisController::class,'edit']);
+    Route::post('/presensi/cis/{kode_izin}/update',[IzinCisController::class,'update']);
+    // Sakit
+    Route::get('/presensi/cis/izinSakit',[SakitCisController::class,'create']);
+    Route::post('/presensi/cis/storeSakit',[SakitCisController::class,'storeSakit']);
+    Route::get('/presensi/izinSakit/{kode_izin}/edit',[SakitCisController::class,'edit']);
+    Route::post('/presensi/cis/{kode_izin}/update',[SakitCisController::class,'update']);
+    // CUTI
+    Route::get('/presensi/cis/cuti',[IzinCutiController::class,'create']);
+    Route::post('/presensi/cis/storeCuti',[IzinCutiController::class,'storeCuti']);
+    Route::get('/presensi/izinCuti/{kode_izin}/edit',[IzinCutiController::class,'edit']);
+    Route::post('/presensi/cis/{kode_izin}/update',[IzinCutiController::class,'update']);
+    
+
+    Route::get('/presensi/cis/{kode_izin}/showact',[PresensiController::class,'showact']);
+    Route::get('/presensi/cis/{kode_izin}/delete',[PresensiController::class,'deleteIzin']);
+
 });
 
 Route::middleware(['auth:user'])->group(function(){
@@ -74,12 +102,53 @@ Route::middleware(['auth:user'])->group(function(){
     Route::post('/showlocation', [PresensiController::class,'showLocation']);
     Route::get('/panel/report', [PresensiController::class,'report']);
     Route::post('/presensi/cetakReport', [PresensiController::class,'cetakReport']);
+    // Mounthly Recap Report
     Route::get('/panel/rekapReport', [PresensiController::class,'rekapReport']);
     Route::post('/presensi/cetakRekap', [PresensiController::class,'cetakRekap']);
+    // Daily Recap Report
+    Route::get('/panel/dailyReport',[PresensiController::class,'dailyReport']);
+    Route::post('/presensi/cetakDailyReport',[PresensiController::class,'cetakDailyReport'])->name('cetakDailyReport');
 
+    // Cabang Area Presensi
+    Route::get('/settings/cabang',[CabangController::class, 'index']);
+    Route::post('/settings/cabang/store',[CabangController::class, 'store']);
+    Route::post('/settings/cabang/edit',[CabangController::class,'edit']);
+    Route::post('/settings/cabang/update',[CabangController::class,'update']);
+    Route::post('/settings/cabang/{kode_cabang}/delete',[CabangController::class,'delete']);
     // Settings
-    Route::get('/settings/lokasi/radius',[SettingsController::class,'radius']);
-    Route::post('/settings/lokasi/radius/update',[SettingsController::class,'updateRadius']);
+    // Route::get('/settings/lokasi/radius',[SettingsController::class,'radius']);
+    // Route::post('/settings/lokasi/radius/update',[SettingsController::class,'updateRadius']);
     Route::get('/settings/jamKerja',[SettingsController::class,'jamKerja']);
+    Route::post('/settings/storeJamKerja',[SettingsController::class,'storeJamKerja']);
+    Route::post('/settings/editJamKerja',[SettingsController::class,'editJamKerja']);
+    Route::post('/settings/updateJamKerja',[SettingsController::class,'updateJamKerja']);
+    Route::post('/settings/jamKerja/{kode_jam_kerja}/delete',[SettingsController::class,'deleteJamKerja']);
+    Route::get('/settings/{nrp}/setJamKerja',[SettingsController::class,'setJamKerja']);
+    Route::post('/settings/storesetJamKerja',[SettingsController::class,'storesetJamKerja']);
+    Route::post('/settings/updatesetJamKerja',[SettingsController::class,'updatesetJamKerja']);
+    
+    
+    Route::get('/settings/jamKerjaDept',[SettingsController::class,'setJamKerjaDept']);
+    Route::get('/settings/jamKerjaDept/create',[SettingsController::class,'createJamKerjaDept']);
+    Route::post('/settings/jamKerjaDept/store',[SettingsController::class,'storeJamKerjaDept']);
+    Route::get('/settings/jamKerjaDept/{kode_jk_dept}/edit',[SettingsController::class,'editJamKerjaDept']);
+    Route::post('/settings/jamKerjaDept/{kode_jk_dept}/update',[SettingsController::class,'updateJamKerjaDept']);
+    Route::get('/settings/jamKerjaDept/{kode_jk_dept}/delete',[SettingsController::class,'deleteJamKerjaDept']);
+
+    // CIS Session
+
+    Route::get('/panel/presensi/cis',[PresensiController::class,'monitoringCis']);
+    Route::post('/panel/presensi/cis/approveCis', [PresensiController::class,'approveCis']);
+    Route::get('/panel/presensi/cis/{kode_izin}/cancelCis',[PresensiController::class,'cancelCis']);
+
+    // Cuti
+    Route::get('/panel/cuti',[CutiController::class,'index']);
+    Route::post('/panel/cuti/store',[CutiController::class,'store']);
+    Route::post('/panel/cuti/edit',[CutiController::class,'edit']);
+    Route::post('/panel/cuti/{kode_cuti}/update',[CutiController::class,'update']);
+        Route::post('/panel/cuti/{kode_cuti}/delete',[CutiController::class,'delete']);
 });
 
+Route::get('/hash', function () {
+    return Hash::make('123');
+});

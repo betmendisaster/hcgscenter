@@ -117,53 +117,75 @@
             <tr>
                 <th rowspan="2">NRP</th>
                 <th rowspan="2">Nama</th>
-                <th colspan="31">Tanggal</th>
-                <th rowspan="2">Total Hadir</th>
-                <th rowspan="2">Total Telat</th>
+                <th colspan="{{ $jmlHari }}">Bulan {{ $namaBulan[$bulan] }} {{ $tahun }} </th>
+                <th rowspan="2">H</th>
+                {{-- <th rowspan="2">Total Telat</th> --}}
+                <th rowspan="2">C</th>
+                <th rowspan="2">S</th>
+                <th rowspan="2">A</th>
             </tr>
             <tr id="tr_tablePresensi">
-                <?php
-                    for ($i = 1; $i <= 31; $i++){
-                ?>
-                <th id="th_tablePresensi"> {{ $i }} </th>
-                <?php
-                    }
-                ?>
+                @foreach ($rangeTanggal as $d)
+                    @if ($d != null)
+                        <th>{{ date('d', strtotime($d)) }}</th>
+                    @endif
+                @endforeach
             </tr>
-            @foreach ($rekap as $d)
+            @foreach ($rekap as $r)
                 <tr id="tr_tablePresensi">
-                    <td id="td_tablePresensi">{{ $d->nrp }}</td>
-                    <td> {{ $d->nama }}</td>
-
+                    <td id="td_tablePresensi">{{ $r->nrp }}</td>
+                    <td id="td_tablePresensi">{{ $r->nama }}</td>
                     <?php
-                    $totHadir = 0;
-                    $totLate = 0;
-                    for ($i = 1; $i <= 31; $i++){
-                        $tgl = "tgl_".$i;
-                        if(empty($d->$tgl)){
-                            $hadir = ['',''];
-                            $totHadir += 0;
-                        }else {
-                            $hadir = explode("-",$d->$tgl);
-                            $totHadir += 1;
-                            if($hadir[0] > "07:00:00"){
-                                $totLate +=1;
-                            }
+                    $jml_hadir = 0;
+                    $jml_izin = 0;
+                    $jml_sakit = 0;
+                    $jml_cuti = 0;
+                    $jml_alpa = 0;
+                    $color = "";
+                    for ($i = 1; $i <= $jmlHari; $i++) {
+                        $tgl = "tgl_" . $i;     
+                        $datapresensi = explode("|",$r->$tgl); 
+                        if($r->$tgl != NULL){
+                            $status = $datapresensi[2];
+                        } else {
+                            $status = "";
                         }
-                    ?>
 
-                    <td id="td_tablePresensi">
-                        {{-- CEK TELAT NYA DISINI --}}
-                        <span style="color: {{ $hadir[0] > '07:00:00' ? 'red' : '' }}">
-                            {{ $hadir[0] }}</span><br>
-                        <span style="color: {{ $hadir[1] < '17:55:00' ? 'red' : '' }}">
-                            {{ $hadir[1] }}
+                        if($status == "h"){
+                            $jml_hadir += 1;
+                            $color = "white";
+                        }
+
+                        if($status == "i"){
+                            $jml_izin += 1;
+                            $color = "yellow";
+                        }
+
+                        if($status == "c"){
+                            $jml_cuti += 1;
+                            $color = "white";
+                        }
+                        if($status == "s"){
+                            $jml_sakit += 1;
+                            $color = "green";
+                        }
+
+                        if(empty($status)){
+                            $jml_alpa += 1;
+                            $color = "red";
+                        } 
+                    ?>
+                    <td id="td_tablePresensi" style="background-color: {{ $color }}">
+                        {{ $status }}
                     </td>
                     <?php
-                    }
+                        }
                     ?>
-                    <td id="td_tablePresensi">{{ $totHadir }} Hari</td>
-                    <td id="td_tablePresensi">{{ $totLate }} Kali</td>
+                    <td id="td_tablePresensi">{{ !empty($jml_hadir) ? $jml_hadir : '' }}</td>
+                    <td id="td_tablePresensi">{{ !empty($jml_cuti) ? $jml_cuti : '' }}</td>
+                    <td id="td_tablePresensi">{{ !empty($jml_sakit) ? $jml_sakit : '' }}</td>
+                    <td id="td_tablePresensi">{{ !empty($jml_alpa) ? $jml_alpa : '' }}</td>
+
                 </tr>
             @endforeach
         </table>
@@ -176,11 +198,11 @@
 
             <tr>
                 <td style="text-align: center; vertical-align: bottom" height="100px">
-                    <u>Farrel Hebat</u><br>
-                    <i><b>HC Group Leader</b></i>
+                    <u>Infinity</u><br>
+                    <i><b>A3 Project</b></i>
                 </td>
                 <td style="text-align: center; vertical-align: bottom;">
-                    <u>Widodo Pranto</u><br>
+                    <u>Widodo Pranoto</u><br>
                     <i><b>Dept. Head HCGS</b></i>
                 </td>
             </tr>

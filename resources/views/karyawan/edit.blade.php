@@ -43,6 +43,21 @@
                     </select>
                 </div>
             </div>
+            {{-- Area Presensi --}}
+            <div class="input-icon mb-3 mt-3">
+                <div class="row ">
+                    <div class="col-12">
+                        <select name="kode_cabang" id="kode_cabang" class="form-select">
+                            <option value="">Area Presensi</option>
+                            @foreach ($cabang as $d)
+                                <option {{ $karyawan->kode_cabang == $d->kode_cabang ? 'selected' : '' }}
+                                    value="{{ $d->kode_cabang }}">{{ strtoupper($d->nama_cabang) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="input-icon mb-3 mt-3">
                 <span class="input-icon-addon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -89,7 +104,6 @@
                             <button type="button" class="btn me-auto" data-bs-dismiss="modal">Tutup</button>
                             <button class="btn btn-primary">Simpan</button>
                         </div>
-
                     </div>
                 </div>
             </div>

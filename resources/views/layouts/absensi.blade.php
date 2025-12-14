@@ -60,7 +60,7 @@
     </style>
 </head>
 
-<body>
+<body class="bg-gradient-to-r from-blue-400/10 via-purple-500/10 to-pink-500/10">
     <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50 pb-20">
         <div class="loader"></div>
         <div class="loader-text">Loading...</div>

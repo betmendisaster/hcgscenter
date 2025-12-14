@@ -25,7 +25,6 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-
             <div class="row">
                 <div class="col-12">
                     <div class="card">
@@ -109,6 +108,7 @@
                                                 <th>NRP</th>
                                                 <th>Nama</th>
                                                 <th>Department</th>
+                                                <th>Area Presensi</th>
                                                 <th>Jabatan</th>
                                                 <th>No. HP</th>
                                                 <th>Foto</th>
@@ -125,6 +125,7 @@
                                                     <td>{{ $d->nrp }}</td>
                                                     <td>{{ $d->nama }}</td>
                                                     <td>{{ $d->nama_dept }}</td>
+                                                    <td>{{ $d->kode_cabang }}</td>
                                                     <td>{{ $d->jabatan }}</td>
                                                     <td>{{ $d->telp }}</td>
                                                     <td>
@@ -149,6 +150,30 @@
                                                                     <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
                                                                     <path
                                                                         d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" />
+                                                                </svg>
+                                                            </a>
+                                                            <a href="/settings/{{ $d->nrp }}/setJamKerja"
+                                                                class="btn btn-success btn-sm">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                    height="24" viewBox="0 0 24 24" fill="none"
+                                                                    stroke="currentColor" stroke-width="2"
+                                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-cog">
+                                                                    <path stroke="none" d="M0 0h24v24H0z"
+                                                                        fill="none" />
+                                                                    <path
+                                                                        d="M12 21h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
+                                                                    <path d="M16 3v4" />
+                                                                    <path d="M8 3v4" />
+                                                                    <path d="M4 11h16" />
+                                                                    <path
+                                                                        d="M19.001 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                                                    <path d="M19.001 15.5v1.5" />
+                                                                    <path d="M19.001 21v1.5" />
+                                                                    <path d="M22.032 17.25l-1.299 .75" />
+                                                                    <path d="M17.27 20l-1.3 .75" />
+                                                                    <path d="M15.97 17.25l1.3 .75" />
+                                                                    <path d="M20.733 20l1.3 .75" />
                                                                 </svg>
                                                             </a>
                                                             <form action="/panel/karyawan/{{ $d->nrp }}/delete"
@@ -240,8 +265,21 @@
                                     <select name="kode_dept" id="kode_dept" class="form-select">
                                         <option value="">Department</option>
                                         @foreach ($department as $d)
-                                            <option {{ Request('kode_dept') == $d->kode_dept ? 'selected' : '' }}
-                                                value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
+                                            <option value="{{ $d->kode_dept }}">{{ $d->nama_dept }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- Area Presensi/Cabang Presensi --}}
+                        <div class="input-icon mb-3 mt-3">
+                            <div class="row ">
+                                <div class="col-12">
+                                    <select name="kode_cabang" id="kode_cabang" class="form-select">
+                                        <option value="">Area Presensi</option>
+                                        @foreach ($cabang as $d)
+                                            <option value="{{ $d->kode_cabang }}">{{ strtoupper($d->nama_cabang) }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>

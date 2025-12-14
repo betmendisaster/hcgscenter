@@ -16,10 +16,14 @@ class Karyawan extends Authenticatable
         'nrp',
         'nama',
         'kode_dept',
+        'kode_cabang',
         'jabatan',
         'telp',
         'password',
         'passwordsee',
+        'foto',
+        'foto_bg'
+        
     ];
 
     

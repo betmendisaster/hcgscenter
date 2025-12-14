@@ -13,13 +13,15 @@
                         class="object-cover h-32 w-32 rounded-full mb-2 border-4 border-white shadow-md" height="100"
                         src="{{ url($path) }}" width="100" />
                 @else
-                    <img alt="Profile picture of Adhy Wira Pratama" class="rounded-full mb-2 border-4 border-white shadow-md"
-                        height="100" src="{{ asset('assets/img/default-profile.jpg') }}" width="100" />
+                    <img alt="Profile picture of {{ Auth::guard('karyawan')->user()->nama }}"
+                        class="rounded-full mb-2 border-4 border-white shadow-md" height="100"
+                        src="{{ asset('assets/img/default-profile.jpg') }}" width="100" />
                 @endif
                 <h2 class="text-white text-lg font-bold">{{ Auth::guard('karyawan')->user()->nama }}</h2>
                 <h2 class="text-white text-lg font-bold">{{ Auth::guard('karyawan')->user()->nrp }}</h2>
-                <h3 class="text-teal-200 font-bold">{{ Auth::guard('karyawan')->user()->kode_dept }}</h3>
+                <h2 class="text-teal-200 font-bold">{{ Auth::guard('karyawan')->user()->kode_dept }}</h2>
                 <p class="text-teal-200">{{ Auth::guard('karyawan')->user()->jabatan }}</p>
+                {{-- <p class="text-teal-200 font-bold">Area Presensi : {{ Auth::guard('karyawan')->user()->kode_cabang }}</p> --}}
             </div>
             <div class="flex justify-around w-full bg-white shadow-md rounded-t-lg py-2">
                 <a href="/editProfile">
@@ -35,13 +37,12 @@
                         <p class="text-sm font-semibold">CIS</p>
                     </div>
                     <div class="absolute hidden bg-white shadow-lg rounded-lg mt-2 w-40" id="dropdownMenu">
-                        <a href="presensi/izin" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                            href="#">Ajukan
-                            Cuti</a>
-                        <a href="presensi/izin" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                            href="#">Ajukan Izin</a>
-                        <a href="presensi/izin" class="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                            href="#">Ajukan Izin Sakit</a>
+                        {{-- <a href="presensi/maintenance" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Ajukan
+                            Cuti</a> --}}
+                        <a href="presensi/cis/izin" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-sm">Ajukan
+                            Cuti/Izin/Sakit</a>
+                        {{-- <a href="presensi/maintenance" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Ajukan Izin
+                            Sakit</a> --}}
                     </div>
                 </div>
                 <div class="flex flex-col items-center cursor-pointer hover:text-yellow-500 transition duration-300"
@@ -51,7 +52,9 @@
                 </div>
                 <div class="flex flex-col items-center cursor-pointer hover:text-pink-500 transition duration-300">
                     <i class="fas fa-map-marker-alt text-pink-500 text-2xl"></i>
-                    <p class="text-sm font-semibold">Lokasi</p>
+                    <a href="/presensi/maintenance">
+                        <p class="text-sm font-semibold">Lokasi</p>
+                    </a>
                 </div>
             </div>
             <!-- today -->
@@ -68,14 +71,14 @@
                 </div>
             </div>
             <!-- bugar -->
-            <div
+            <a href="/presensi/maintenance"
                 class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg p-2 flex items-center justify-center w-full mx-1 cursor-pointer hover:from-yellow-600 hover:to-orange-600 transition duration-300 shadow-md mt-4">
                 <i class="fas fa-heartbeat text-xl mr-2"></i>
                 <div class="flex flex-col items-center">
                     <p class="text-md font-bold">Bugar</p>
                     <p class="text-xs">Selamat</p>
                 </div>
-            </div>
+            </a>
             <div class="flex justify-around w-full mt-4">
                 <div class="bg-gradient-to-r from-green-700 to-lime-700 text-white rounded-lg p-2 flex items-center w-1/2 mx-1 cursor-pointer hover:from-green-600 hover:to-lime-600 transition duration-300 shadow-md relative"
                     id="openModalBtnIn">
@@ -100,7 +103,7 @@
             </div>
             <div class="bg-white text-black w-full rounded-t-lg pt-4 mt-3 flex flex-col items-center relative shadow-md">
                 <h2 class="text-center font-semibold mb-4 text-sm">
-                    Rekap Presensi Bulan {{ $namaBulan[$bulanIni] }} Tahun {{ $tahunIni }}
+                    Gadget Presensi Bulan {{ $namaBulan[$bulanIni] }} Tahun {{ $tahunIni }}
                 </h2>
                 <div class="flex justify-around w-full mx-4 mb-3">
                     <div
@@ -114,14 +117,14 @@
                         class="relative bg-slate-200 text-black rounded-lg p-2 flex flex-col items-center w-1/5 mx-1 cursor-pointer hover:bg-slate-600 hover:text-white transition duration-300 shadow-md">
                         <ion-icon name="document-text-outline" class="text-2xl"></ion-icon>
                         <span
-                            class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">~</span>
+                            class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">{{ $rekapCis->jmlIzin }}</span>
                         <p class="font-semibold text-xs mt-1">Izin</p>
                     </div>
                     <div
                         class="relative bg-slate-200 text-black rounded-lg p-2 flex flex-col items-center w-1/5 mx-1 cursor-pointer hover:bg-slate-600 hover:text-white transition duration-300 shadow-md">
                         <ion-icon name="medkit-outline" class="text-2xl"></ion-icon>
                         <span
-                            class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">~</span>
+                            class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">{{ $rekapCis->jmlSakit }}</span>
                         <p class="font-semibold text-xs mt-1">Sakit</p>
                     </div>
                     <div

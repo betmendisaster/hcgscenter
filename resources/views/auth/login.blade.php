@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://unpkg.com/@themesberg/flowbite@1.2.0/dist/flowbite.min.css" />
     {{-- leaflet map --}}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>A3-app -Presensi-</title>
     <style>
         /* Menambahkan gaya untuk latar belakang loader */
         .loader-bg {
@@ -81,7 +82,7 @@
                 <!-- form -->
                 <div class="md:w-1/2 px-8 md:px-16">
                     <a href=""><img src="{{ asset('assets/img/logo/logo1.png') }}" alt="logo hrs 1"
-                            class="size-48 md:animate-bounce animate-pulse hover:scale-110 duration-700" /></a>
+                            class="size-50 animate-pulse hover:scale-110 duration-700" /></a>
                     <h2 class="font-bold text-2xl text-[#040404]">Login</h2>
                     <p class="text-xs mt-4 text-[#040404]">
                         PT.Hasnur Riung Sinergi
@@ -117,22 +118,21 @@
                             Login
                         </button>
                     </form>
-                    <div class="mt-3 text-xs flex justify-between items-center text-[#000000]">
+                    {{-- <div class="mt-3 text-xs flex justify-between items-center text-[#000000]">
                         <p>Butuh bantuan ?</p>
                         <a href="#">
                             <button
-                                class="py-2 px-5 bg-white border rounded-xl hover:scale-110 duration-300 hover:bg-black dark:hover:text-white"
+                                class="py-2 px-3 bg-white border rounded-xl hover:scale-110 duration-300 hover:bg-black dark:hover:text-white"
                                 type="button">
                                 Contact Support
                             </button>
                         </a>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <!-- image -->
                 <div class="md:block hidden w-1/2">
-                    <img class="rounded-2xl"
-                        src="https://images.unsplash.com/photo-1616606103915-dea7be788566?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1887&q=80" />
+                    <img class="rounded-2xl" src="{{ asset('assets/img/logoA3.png') }}" />
                 </div>
             </div>
         </section>
