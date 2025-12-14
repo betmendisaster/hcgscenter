@@ -267,7 +267,7 @@
                             text: status[1],
                             icon: 'error',
                             confirmButtonText: 'OK',
-                            footer: '<a href="#">Hubungi Support</a>'
+                            footer: '<a href="/">Kembali ke Dashboard</a>'
                         })
 
                     }

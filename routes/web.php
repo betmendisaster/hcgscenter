@@ -75,6 +75,9 @@ route::middleware(['auth:karyawan'])->group(function () {
     Route::get('/presensi/cis/{kode_izin}/showact',[PresensiController::class,'showact']);
     Route::get('/presensi/cis/{kode_izin}/delete',[PresensiController::class,'deleteIzin']);
 
+    Route::get('/presensi/bugar-selamat', [PresensiController::class, 'bugarSelamat']);
+    Route::post('/presensi/store-bugar-selamat', [PresensiController::class, 'storeBugarSelamat']);
+
 });
 
 Route::middleware(['auth:user'])->group(function(){

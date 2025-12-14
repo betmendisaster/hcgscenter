@@ -59,6 +59,12 @@ class PresensiController extends Controller
         $today = date("Y-m-d");
         $namahari = $this->getHari();
         $nrp = Auth::guard('karyawan')->user()->nrp;
+        // cek bugar bos
+        $cekBugar = DB::table('bugar_selamat')->where('nrp', $nrp)->where('tgl_presensi', $today)->count();
+        if($cekBugar == 0){
+            return redirect('/presensi/bugar-selamat');
+        }
+        
         $kode_dept = Auth::guard('karyawan')->user()->kode_dept;
         $cek = DB::table('presensi')->where('tgl_presensi', $today)->where('nrp', $nrp)->count();
         $kode_cabang = Auth::guard('karyawan')->user()->kode_cabang;
@@ -636,4 +642,62 @@ class PresensiController extends Controller
             return redirect('/presensi/cis/izin')->with(['warning' => 'Data Gagal di Hapus']);
         }
     }
+
+    public function bugarSelamat() {
+    $nrp = Auth::guard('karyawan')->user()->nrp;
+    $today = date("Y-m-d");
+    
+    // Cek apakah sudah isi untuk hari ini
+    $cek = DB::table('bugar_selamat')->where('nrp', $nrp)->where('tgl_presensi', $today)->count();
+    
+    if ($cek > 0) {
+        // Jika sudah isi, redirect ke presensi
+        return redirect('/presensi/create');
+    }
+    
+    return view('layouts.presensi.bugar.bugarSelamat');
+    }
+    
+    // Fungsi untuk menyimpan data bugar selamat
+    public function storeBugarSelamat(Request $request) {
+    $nrp = Auth::guard('karyawan')->user()->nrp;
+    $today = date("Y-m-d");
+
+    // Validasi input
+    $request->validate([
+        'jam_tidur' => 'required|integer|min:1|max:24',
+        'minum_obat' => 'required|in:ya,tidak',
+    ]);
+
+    // Cek apakah sudah isi untuk hari ini
+    $cek = DB::table('bugar_selamat')->where('nrp', $nrp)->where('tgl_presensi', $today)->count();
+
+    if ($cek > 0) {
+        // Jika sudah isi, redirect ke presensi
+        return redirect('/presensi/create')->with(['warning' => 'Anda sudah mengisi data Bugar Selamat untuk hari ini.']);
+    }
+        // Simpan data
+        $data = [
+            'nrp' => $nrp,
+            'tgl_presensi' => $today,
+            'jam_tidur' => $request->jam_tidur,
+            'minum_obat' => $request->minum_obat,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        try {
+            $simpan = DB::table('bugar_selamat')->insert($data);
+            if ($simpan) {
+                return response()->json(['success' => 'Data Bugar Selamat berhasil disimpan.']);
+            } else {
+                return response()->json(['error' => 'Gagal menyimpan data Bugar Selamat. Silakan coba lagi.'], 500);
+            }
+        } catch (\Exception $e) {
+            // Log error untuk debugging
+            \Log::error('Error menyimpan data Bugar Selamat: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan sistem. Silakan coba lagi.'], 500);
+        }
+    }
+    
 }

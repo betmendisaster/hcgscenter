@@ -71,7 +71,7 @@
                 </div>
             </div>
             <!-- bugar -->
-            <a href="/presensi/maintenance"
+            <a href="/presensi/bugar-selamat"
                 class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg p-2 flex items-center justify-center w-full mx-1 cursor-pointer hover:from-yellow-600 hover:to-orange-600 transition duration-300 shadow-md mt-4">
                 <i class="fas fa-heartbeat text-xl mr-2"></i>
                 <div class="flex flex-col items-center">
