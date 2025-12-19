@@ -117,7 +117,7 @@
                         </div>
                         <div class="flex justify-center">
                             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Simpan</button>
-                            <button type="button" id="btnCloseModal" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Batal</button>
+                            <button type="button" id="btnCloseModal" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Lanjutkan Absen</button>
                         </div>
                     </form>
                 </div>
@@ -139,6 +139,7 @@
 
 @push('myscript')
     <script>
+  
         window.onload = function() {
             jam();
         }
@@ -300,5 +301,35 @@
                 }
             });
         });
+    </script>
+
+    <script>
+        // Pop-up alert untuk memastikan shift, hanya muncul jika belum absen in hari ini
+        @if($cek == 0)
+            window.onload = function() {
+                // Pastikan jam() sudah dipanggil sebelumnya jika diperlukan
+                jam(); // Jika ada fungsi jam() sebelumnya
+
+                // Tampilkan pop-up SweetAlert dengan callback untuk membuka modal
+                Swal.fire({
+                    title: 'Peringatan!',
+                    // text: 'Yuk, pastikan shift pian sudah bujur 😊 Kalau belum sesuai, minta tolong sesuaikan dulu, atau pilih Ganti Shift yang warna habang. Kalau sudah bujur sesuai, silakan tekan Batal untuk melanjutkan absen.',
+                    text: 'Yuk, Shift pian sudah bujur kah? 😆 Belum → Ganti Shift Sudah → Lanjutkan absen, gas absen!',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Buka modal ganti shift setelah klik OK
+                        $("#modalGantiShift").removeClass("hidden");
+                    }
+                });
+            };
+        @else
+            // Jika sudah absen in, tetap panggil jam() jika diperlukan
+            window.onload = function() {
+                jam();
+            };
+        @endif
     </script>
 @endpush
