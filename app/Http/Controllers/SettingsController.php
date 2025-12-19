@@ -256,4 +256,5 @@ class SettingsController extends Controller
              return Redirect::back()->with(['warning' => 'Data Gagal Dihapus']);
         }
     }
+    
 }

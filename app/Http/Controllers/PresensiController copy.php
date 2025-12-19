@@ -53,10 +53,6 @@ class PresensiController extends Controller
             return $today;
         }
 
-    public function getTanggalSekarang(){
-        return date("d-m-Y"); // Format dd-mm-yyyy, e.g., "15-10-2023". Ubah jika perlu, e.g., "Y-m-d" untuk yyyy-mm-dd
-    }
-
     public function create(){
         
         // validasi absen untuk absen pulang
@@ -85,11 +81,26 @@ class PresensiController extends Controller
             }
         
             
-        if($jamKerja == null){
-                return view ('layouts.presensi.notifJadwal');                
-            } else {
-        return view('layouts.presensi.create', compact('cek','lok_site','jamKerja'));
-        }   
+        if ($jamKerja == null) {
+            return view('layouts.presensi.notifJadwal');
+        } else {
+            // TAMBAHKAN: Cek shift dan absen in
+            $cekShift = DB::table('settings_jam_kerja')->where('nrp', $nrp)->where('hari', $namahari)->count();
+            $showShiftModal = false;
+            
+            // Cek apakah sudah ada absen in untuk hari ini
+            $cekAbsenIn = DB::table('presensi')
+                ->where('nrp', $nrp)
+                ->where('tgl_presensi', date("Y-m-d"))
+                ->whereNotNull('jam_in')
+                ->count();
+            
+            if ($cekShift == 0 && $cekAbsenIn == 0) {
+                $showShiftModal = true; // Hanya tampilkan modal jika shift belum ada DAN belum absen in
+            }
+
+            return view('layouts.presensi.create', compact('cek', 'lok_site', 'jamKerja', 'showShiftModal'));
+        }
     }
 
 
@@ -704,62 +715,82 @@ class PresensiController extends Controller
         }
     }
     
-    // public function gantiShift(){
-    //     $nrp = Auth::guard('karyawan')->user()->nrp;
-    //     $today = date("Y-m-d");
-    //     $hariSekarang = $this->getHari(); // Menggunakan method getHari yang sudah ada
-    //     $tanggalSekarang = date("d-m-Y");
-    //     // Cek apakah sudah absen "in" hari ini
-    //     $cek = DB::table('presensi')->where('tgl_presensi', $today)->where('nrp', $nrp)->count();
-    //     if($cek > 0){
-    //         return redirect('/presensi/create')->with(['warning' => 'Anda sudah absen hari ini, tidak bisa ganti shift.']);
-    //     }
-
-    //     // Ambil daftar shift yang tersedia dari admin
-    //     $jamKerja = DB::table('jam_kerja')->orderBy('nama_jam_kerja')->get();
-
-    //     // Ambil setting shift untuk hari ini saja (jika ada)
-    //     $currentShift = DB::table('settings_jam_kerja')
-    //         ->where('nrp', $nrp)
-    //         ->where('hari', $hariSekarang)
-    //         ->first();
-
-    //     return view('layouts.presensi.gantiShift', compact('jamKerja', 'currentShift', 'hariSekarang','tanggalSekarang'));
-    // }
-
-    public function updateShiftAjax(Request $request){
+        public function loadShiftData() {
         $nrp = Auth::guard('karyawan')->user()->nrp;
+        $hari = $this->getHari();
         $today = date("Y-m-d");
-        $hariSekarang = $this->getHari();
 
-        // Cek apakah sudah absen "in" hari ini
-        $cek = DB::table('presensi')->where('tgl_presensi', $today)->where('nrp', $nrp)->count();
-        if($cek > 0){
-            return response()->json(['error' => 'Anda sudah absen hari ini, tidak bisa ganti shift.'], 400);
+        // TAMBAHKAN: Cek apakah sudah ada absen in untuk hari ini
+        $cekAbsenIn = DB::table('presensi')
+            ->where('nrp', $nrp)
+            ->where('tgl_presensi', $today)
+            ->whereNotNull('jam_in')
+            ->count();
+
+        if ($cekAbsenIn > 0) {
+            return response()->json(['error' => 'Shift kerja sudah terkunci setelah Anda melakukan absen masuk. Tidak bisa diubah lagi untuk hari ini.'], 403);
         }
 
+        // Jika belum absen in, lanjutkan load data shift (kode tetap sama)
+        $jamKerjaList = DB::table('jam_kerja')->orderBy('nama_jam_kerja')->get();
+        $shiftSaatIni = DB::table('settings_jam_kerja')
+            ->join('jam_kerja', 'settings_jam_kerja.kode_jam_kerja', '=', 'jam_kerja.kode_jam_kerja')
+            ->where('nrp', $nrp)
+            ->where('hari', $hari)
+            ->first();
+
+        return response()->json(['jamKerjaList' => $jamKerjaList, 'shiftSaatIni' => $shiftSaatIni, 'hari' => $hari]);
+    }
+
+       public function storePilihShift(Request $request) {
+        $nrp = Auth::guard('karyawan')->user()->nrp;
+        $hari = $this->getHari();
+        $today = date("Y-m-d");
+
+        // TAMBAHKAN: Cek apakah sudah ada absen in untuk hari ini
+        $cekAbsenIn = DB::table('presensi')
+            ->where('nrp', $nrp)
+            ->where('tgl_presensi', $today)
+            ->whereNotNull('jam_in')
+            ->count();
+
+        if ($cekAbsenIn > 0) {
+            return response()->json(['error' => 'Shift kerja sudah terkunci setelah Anda melakukan absen masuk. Tidak bisa diubah lagi untuk hari ini.'], 403);
+        }
+
+        // Kode sisanya tetap sama (validasi, logic simpan, dll.)
         $kode_jam_kerja = $request->kode_jam_kerja;
+        $action = $request->action;
 
-        // Validasi input
-        if(empty($kode_jam_kerja)){
-            return response()->json(['error' => 'Pilih shift untuk hari ini.'], 400);
-        }
+        $request->validate([
+            'kode_jam_kerja' => 'required|exists:jam_kerja,kode_jam_kerja',
+        ]);
+
+        $cekShift = DB::table('settings_jam_kerja')->where('nrp', $nrp)->where('hari', $hari)->count();
 
         DB::beginTransaction();
         try {
-            // Hapus setting lama untuk hari ini (jika ada)
-            DB::table('settings_jam_kerja')->where('nrp', $nrp)->where('hari', $hariSekarang)->delete();
-            // Insert setting baru untuk hari ini
-            DB::table('settings_jam_kerja')->insert([
-                'nrp' => $nrp,
-                'hari' => $hariSekarang,
-                'kode_jam_kerja' => $kode_jam_kerja
-            ]);
+            if ($cekShift > 0) {
+                if ($action == 'ubah') {
+                    DB::table('settings_jam_kerja')
+                        ->where('nrp', $nrp)
+                        ->where('hari', $hari)
+                        ->update(['kode_jam_kerja' => $kode_jam_kerja]);
+                }
+            } else {
+                DB::table('settings_jam_kerja')->insert([
+                    'nrp' => $nrp,
+                    'hari' => $hari,
+                    'kode_jam_kerja' => $kode_jam_kerja,
+                ]);
+            }
+
             DB::commit();
-            return response()->json(['success' => 'Shift untuk hari ini berhasil diganti.']);
+            return response()->json(['success' => 'Shift kerja berhasil dipilih.']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Gagal mengganti shift.'], 500);
+            return response()->json(['error' => 'Gagal menyimpan shift kerja. Silakan coba lagi.'], 500);
         }
     }
+
 }

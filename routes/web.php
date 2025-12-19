@@ -78,6 +78,9 @@ route::middleware(['auth:karyawan'])->group(function () {
     Route::get('/presensi/bugar-selamat', [PresensiController::class, 'bugarSelamat']);
     Route::post('/presensi/store-bugar-selamat', [PresensiController::class, 'storeBugarSelamat']);
 
+    // Route::get('/presensi/ganti-shift', [PresensiController::class, 'gantiShift']);
+    Route::post('/presensi/update-shift-ajax', [PresensiController::class, 'updateShiftAjax']);
+
 });
 
 Route::middleware(['auth:user'])->group(function(){
