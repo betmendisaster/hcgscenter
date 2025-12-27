@@ -41,8 +41,7 @@
                                         </span>
                                         <input type="text" id="tanggal" name="tanggal" value="{{ date('Y-m-d') }}"
                                             class="form-control" placeholder="Tanggal Presensi"
-                                            autocomplete="off
-                                                ">
+                                            autocomplete="off">
                                     </div>
                                 </div>
                             </div>
@@ -111,12 +110,38 @@
                 cache: false,
                 success: function(respond) {
                     $("#loadPresensi").html(respond);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error loading presensi:", error);
+                    $("#loadPresensi").html('<p class="text-danger">Gagal memuat data presensi.</p>');
                 }
-            })
+            });
         }
         $("#tanggal").change(function(e) {
             loadPresensi();
         });
         loadPresensi();
+
+        // Tambahan: Event handler untuk tombol lokasi
+        $(document).on('click', '.btn-location', function() {
+            var id = $(this).data('id');
+            if (!id) {
+                alert('ID tidak ditemukan!');
+                return;
+            }
+            $.ajax({
+                type: 'GET',
+                url: '/presensi/showLocation', // Pastikan route ini ada di routes/web.php
+                data: { id: id },
+                success: function(response) {
+                    $('#loadLocation').html(response);
+                    $('#modal-location').modal('show');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error loading location:", error);
+                    alert('Gagal memuat lokasi: ' + error);
+                }
+            });
+        });
     </script>
 @endpush

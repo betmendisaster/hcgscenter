@@ -303,9 +303,22 @@ class PresensiController extends Controller
 
     public function showLocation(Request $request) {
         $id = $request->id;
-        $presensi = DB::table('presensi')->where('id', $id)
-        ->join('karyawan','presensi.nrp','=','karyawan.nrp')
-        ->first();
+        $presensi = DB::table('presensi')
+            ->join('karyawan', 'presensi.nrp', '=', 'karyawan.nrp')
+            ->leftJoin('cabang', 'karyawan.kode_cabang', '=', 'cabang.kode_cabang') // Asumsi nama lokasi dari cabang
+            ->where('presensi.id', $id)
+            ->select(
+            'presensi.*',
+            'karyawan.nama',
+            'karyawan.nrp',
+            'cabang.nama_cabang as nama_lokasi' // Jika ada kolom nama_cabang; sesuaikan jika berbeda
+            )
+         ->first();
+
+        // Jika tidak ada nama lokasi dari cabang, bisa tambahkan logika lain, e.g., dari tabel lokasi_presensi jika ada
+        // Contoh: Jika ada tabel lokasi_presensi dengan id = presensi.lokasi_in (tapi lokasi_in adalah koordinat, jadi mungkin tidak)
+        // Jika perlu, tambahkan: ->leftJoin('lokasi_presensi', 'presensi.lokasi_in', '=', 'lokasi_presensi.id')
+
         return view('layouts.presensi.showLocation', compact('presensi'));
     }
 
