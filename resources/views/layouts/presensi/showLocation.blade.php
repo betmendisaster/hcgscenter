@@ -1,5 +1,3 @@
-<!-- Ini adalah partial view, bukan HTML lengkap. Pastikan dimuat ke dalam modal. -->
-
 <div class="container-fluid">
     <!-- Kolom Atas: Peta Lokasi -->
     <div class="row mb-4">

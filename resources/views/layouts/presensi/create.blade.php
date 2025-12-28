@@ -61,8 +61,8 @@
                     </div>
                     {{-- Tombol Ganti Shift dipindahkan ke sini, di bawah jam --}}
                     @if($cek == 0)
-                        <button id="btnGantiShift" class="text-xs bg-red-500 text-white rounded px-2 py-1 mt-2 cursor-pointer hover:bg-red-700 transition duration-300 shadow-sm flex items-center gap-1">
-                            <i class="fa-solid fa-arrows-alt-h"></i> Ganti Shift
+                        <button id="btnKonfirmasiShift" class="text-xs bg-red-500 text-white rounded px-2 py-1 mt-2 cursor-pointer hover:bg-red-700 transition duration-300 shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-arrows-alt-h"></i> Konfirmasi Shift
                         </button>
                     @endif
                 </div>
@@ -89,6 +89,26 @@
                 @else
                     <button class="bg-white text-black rounded-lg p-1 flex flex-col items-center w-1/5 mx-1 cursor-pointer hover:bg-green-800 transition duration-300 shadow-md hover:text-white" id="takeabsen"><i class="fa-solid fa-camera"></i>In</button>
                 @endif
+            </div>
+        </div>
+
+        {{-- Modal Konfirmasi Shift --}}
+        <div id="modalKonfirmasiShift" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg font-medium text-gray-900">Konfirmasi Shift Hari Ini</h3>
+                    <p class="text-sm text-gray-600 mt-2">Hari: {{ app('App\Http\Controllers\PresensiController')->getHari() }}, {{ app('App\Http\Controllers\PresensiController')->getTanggalSekarang() }}</p>
+                    <div class="mt-4 text-left">
+                        <p><strong>Nama Shift:</strong> {{ $jamKerja->nama_jam_kerja }}</p>
+                        <p><strong>Jam Masuk:</strong> {{ date('H:i', strtotime($jamKerja->awal_jam_masuk)) }}</p>
+                        <p><strong>Jam Pulang:</strong> {{ date('H:i', strtotime($jamKerja->jam_pulang)) }}</p>
+                        <p class="mt-4 text-gray-700">Shift pian sudah sesuai kah ? mun belum silakan ganti dulu shift nya</p>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <button id="btnSudahBenar" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 mr-2">Ya, Sudah Benar</button>
+                        <button id="btnBukaGantiShift" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Ganti Shift</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -139,7 +159,6 @@
 
 @push('myscript')
     <script>
-  
         window.onload = function() {
             jam();
         }
@@ -252,11 +271,23 @@
             });
         });
 
-        // Modal Ganti Shift
-        $("#btnGantiShift").click(function() {
+        // Tombol Konfirmasi Shift (di atas)
+        $("#btnKonfirmasiShift").click(function() {
+            $("#modalKonfirmasiShift").removeClass("hidden");
+        });
+
+        // Tombol di Modal Konfirmasi Shift
+        $("#btnSudahBenar").click(function() {
+            $("#modalKonfirmasiShift").addClass("hidden");
+            // User bisa langsung absen sekarang
+        });
+
+        $("#btnBukaGantiShift").click(function() {
+            $("#modalKonfirmasiShift").addClass("hidden");
             $("#modalGantiShift").removeClass("hidden");
         });
 
+        // Modal Ganti Shift
         $("#btnCloseModal").click(function() {
             $("#modalGantiShift").addClass("hidden");
         });
@@ -304,29 +335,13 @@
     </script>
 
     <script>
-        // Pop-up alert untuk memastikan shift, hanya muncul jika belum absen in hari ini
+        // Modal konfirmasi shift muncul otomatis jika belum absen in hari ini
         @if($cek == 0)
             window.onload = function() {
-                // Pastikan jam() sudah dipanggil sebelumnya jika diperlukan
-                jam(); // Jika ada fungsi jam() sebelumnya
-
-                // Tampilkan pop-up SweetAlert dengan callback untuk membuka modal
-                Swal.fire({
-                    title: 'Peringatan!',
-                    // text: 'Yuk, pastikan shift pian sudah bujur 😊 Kalau belum sesuai, minta tolong sesuaikan dulu, atau pilih Ganti Shift yang warna habang. Kalau sudah bujur sesuai, silakan tekan Batal untuk melanjutkan absen.',
-                    text: 'Yuk, Shift pian sudah bujur kah? 😆 Belum → Ganti Shift Sudah → Lanjutkan absen, gas absen!',
-                    icon: 'warning',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#3085d6'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Buka modal ganti shift setelah klik OK
-                        $("#modalGantiShift").removeClass("hidden");
-                    }
-                });
+                jam();
+                $("#modalKonfirmasiShift").removeClass("hidden");
             };
         @else
-            // Jika sudah absen in, tetap panggil jam() jika diperlukan
             window.onload = function() {
                 jam();
             };
